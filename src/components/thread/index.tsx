@@ -139,7 +139,9 @@ export function Thread() {
   const isLargeScreen = useMediaQuery("(min-width: 1024px)");
 
   const stream = useStreamContext();
-  const messages = stream.messages;
+  // Filter out undefined entries: the stream can transiently produce holes, and the code
+  // below (and the render map) assumes every message is defined (e.g. m.type access).
+  const messages = (stream.messages ?? []).filter(Boolean);
   const isLoading = stream.isLoading;
 
   const lastError = useRef<string | undefined>(undefined);
@@ -218,7 +220,7 @@ export function Thread() {
       { messages: [...toolMessages, newHumanMessage], context },
       {
         streamMode: ["values"],
-        streamSubgraphs: true,
+        streamSubgraphs: false,
         streamResumable: true,
         optimisticValues: (prev) => ({
           ...prev,
@@ -245,7 +247,7 @@ export function Thread() {
     stream.submit(undefined, {
       checkpoint: parentCheckpoint,
       streamMode: ["values"],
-      streamSubgraphs: true,
+      streamSubgraphs: false,
       streamResumable: true,
     });
   };
