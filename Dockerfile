@@ -8,8 +8,10 @@ RUN npm install
 COPY . .
 
 # NEXT_PUBLIC_* are inlined at build time, so they must be set before `next build`.
-# LANGGRAPH_API_URL is read at runtime (server-side passthrough) — set via compose instead.
-ENV NEXT_PUBLIC_API_URL=/api
+# NEXT_PUBLIC_API_URL must be ABSOLUTE — the SDK calls new URL() on it, which rejects a relative
+# "/api". Use the public site URL + /api; Next proxies that to LANGGRAPH_API_URL server-side.
+# LANGGRAPH_API_URL itself is read at runtime — set via compose.
+ENV NEXT_PUBLIC_API_URL=https://agentic-search.project.hudci.org/api
 ENV NEXT_PUBLIC_ASSISTANT_ID=agentic_search
 RUN npm run build
 
